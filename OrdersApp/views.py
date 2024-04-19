@@ -1,3 +1,5 @@
+import africastalking 
+from decouple import config
 from django.shortcuts import render
 
 from django.views.decorators.csrf import csrf_exempt
@@ -26,8 +28,15 @@ def ordersApi(request,id=0):
         if orders_serializer.is_valid():
         
             orders_serializer.save()
-        
+            
+            # Initialize africa talking sms SDK
+            africastalking.initialize(config("AFRICAS_TALKING_USERNAME"), config("AFRICAS_TALKING_API_KEY"))
+
+            # Use the service synchronously
+            response = africastalking.SMS.send("Hello Message!", ["+254715592073"])
+
             return JsonResponse("Order Added Successfully",safe=False)
+
         
         return JsonResponse("Failed to Add Order",safe=False)
     
