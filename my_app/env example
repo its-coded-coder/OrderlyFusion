@@ -1,5 +1,10 @@
+# Add your database server connection 
 DB_NAME=my_app # database name 
 DB_USER=postgres    # database username 
 DB_PASSWORD=123456789 # database password 
 DB_HOST=127.0.0.1   # the server ip of the database host
 DB_PORT=5432    # the database port in use 
+
+# Add your Africa's Talking credentials
+AFRICAS_TALKING_USERNAME=
+AFRICAS_TALKING_API_KEY=
