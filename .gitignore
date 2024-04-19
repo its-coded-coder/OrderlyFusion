@@ -1,3 +1,7 @@
 .env
 my_venv/
 my_app/__pycache__/
+CustomersApp/__pycache__/
+CustomersApp/migrations/__pycache__/
+OrdersApp/__pycache__/
+OrdersApp/migrations/__pycache__/
