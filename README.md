@@ -92,11 +92,11 @@ The Customers API allows you to manage customer data.
 
 The Orders API allows you to manage order data.
 
-- GET `/api/orders/`: Get a list of all orders.
-- GET `/api/orders/{id}/`: Get details of a specific order.
-- POST `/api/orders/`: Create a new order.
-- PUT `/api/orders/{id}/`: Update an existing order.
-- DELETE `/api/orders/{id}/`: Delete an order.
+- GET `/api/v1/orders`: Get a list of all orders.
+- GET `/api/v1/orders/{id}/`: Get details of a specific order.
+- POST `/api/v1/orders`: Create a new order.
+- PUT `/api/v1/orders/{id}/`: Update an existing order.
+- DELETE `/api/v1/orders/{id}/`: Delete an order.
 
 ## Examples
 
