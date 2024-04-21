@@ -1,65 +1,59 @@
-import africastalking 
-from decouple import config
-from django.shortcuts import render
-
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
-from django.http.response import JsonResponse
+import asyncio
+import africastalking
+from os import environ
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 from OrdersApp.models import Order
 from OrdersApp.serializer import OrderSerializer
 
-@csrf_exempt
-def ordersApi(request,id=0):
-    if request.method=='GET':
-        
-        listAllOrders = Order.objects.all()
-      
-        orders_serializer=OrderSerializer(listAllOrders,many=True)
+class OrdersAPIView(APIView):
+    def get(self, request):
+        orders = Order.objects.all()
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
 
-        return JsonResponse(orders_serializer.data,safe=False)
-    
-    elif request.method=='POST':
-      
-        order_data=JSONParser().parse(request)
-        
-        orders_serializer=OrderSerializer(data=order_data)
-        
-        if orders_serializer.is_valid():
-        
-            orders_serializer.save()
-            
-            # Initialize africa talking sms SDK
-            africastalking.initialize(config("AFRICAS_TALKING_USERNAME"), config("AFRICAS_TALKING_API_KEY"))
+    def post(self, request):
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            self.send_sms_async("Order Added Successfully")
+            return Response("Order Added Successfully", status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Use the service synchronously
-            response = africastalking.SMS.send("Hello Message!", ["+254715592073"])
+    async def send_sms_async(self, message):
+        africastalking.initialize(environ.get("AFRICAS_TALKING_USERNAME"), environ.get("AFRICAS_TALKING_API_KEY"))
+        await asyncio.sleep(0)  # Simulate asynchronous operation
+        africastalking.SMS.send(message, ["+254715592073"])
 
-            return JsonResponse("Order Added Successfully",safe=False)
+class OrderDetailAPIView(APIView):
+    def get_object(self, pk):
+        try:
+            return Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return None
 
-        
-        return JsonResponse("Failed to Add Order",safe=False)
-    
-    elif request.method=='PUT':
+    def get(self, request, pk):
+        order = self.get_object(pk)
+        if order:
+            serializer = OrderSerializer(order)
+            return Response(serializer.data)
+        return Response("Order not found", status=status.HTTP_404_NOT_FOUND)
 
-        order_data=JSONParser().parse(request)
-        
-        order = Order.objects.get(OrderId=order_data['id'])
-        
-        orders_serializer=OrderSerializer(order,data=order_data)
-        
-        if orders_serializer.is_valid():
-        
-            orders_serializer.save()
-        
-            return JsonResponse("Updated Successfully",safe=False)
-        
-        return JsonResponse("Failed to Update")
-    
-    elif request.method=='DELETE':
-    
-        order=Order.objects.get(OrderId=id)
-    
-        order.delete()
-    
-        return JsonResponse("Deleted Successfully",safe=False)
+    def put(self, request, pk):
+        order = self.get_object(pk)
+        if order:
+            serializer = OrderSerializer(order, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response("Updated Successfully")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response("Order not found", status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        order = self.get_object(pk)
+        if order:
+            order.delete()
+            return Response("Deleted Successfully", status=status.HTTP_204_NO_CONTENT)
+        return Response("Order not found", status=status.HTTP_404_NOT_FOUND)
