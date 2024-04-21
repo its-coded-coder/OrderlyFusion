@@ -1,0 +1,29 @@
+services:
+  web:
+    build: .
+    command: sh -c "python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    environment:
+      - POSTGRES_DB=my_app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AFRICAS_TALKING_USERNAME=atsapp
+      - AFRICAS_TALKING_API_KEY=16e2e82eba8c9275daa6f4c51d3c834cb6d838d900404e5eee59caab7e774b28
+
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=my_app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
