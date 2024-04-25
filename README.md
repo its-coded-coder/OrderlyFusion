@@ -75,6 +75,17 @@ The server will be running inside the Docker container. You can access it at htt
 ```bash 
 docker-compose down
 ```
+## Aquire API Token
+curl -X POST \
+  http://localhost:8000/api-token-auth/ \  
+  -H 'Content-Type: application/json' \                               
+  -d '{                                
+    "username": "username",
+    "password": "user_password"}'  
+
+This will return a token which you need to include in the header of each request as follows:
+Authorization: Token <your_token>
+
 
 ## API Endpoints
 

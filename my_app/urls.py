@@ -16,9 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from OrdersApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('CustomersApp.urls')),
-    path('', include('OrdersApp.urls')),  
+    path('', include('OrdersApp.urls')), 
+    path('customers/', views.CustomerListView.as_view(), name='customer-list'),
+    path('api-token-auth/', views.CustomObtainAuthToken.as_view(), name='api_token_auth'),
+    path('api/v1/customers/', views.CustomerListView.as_view(), name='customer-list'),
 ]
